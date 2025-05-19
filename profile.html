@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="icon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile | LT Quiz</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(180deg, #ffdeaa 1%, #fff4ec 99%);
+      background-attachment: fixed;
+      background-size: cover;
+      min-height: 100vh;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    
+    .navbar {
+      background-color: transparent;
+      padding: 15px 30px;
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      color: #000 !important;
+    }
+    
+    .profile-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 30px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #ffe7c1;
+      margin-bottom: 15px;
+    }
+    
+    .profile-details {
+      background-color: #fff;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .detail-item {
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .detail-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    
+    .detail-label {
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    
+    .detail-value {
+      font-size: 16px;
+      color: #333;
+    }
+    
+    .quiz-stats {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+      margin: 25px 0;
+    }
+    
+    .stat-item {
+      padding: 15px;
+    }
+    
+    .stat-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: #f39c12;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .btn-auth {
+      width: 100%;
+      height: 50px;
+      border-radius: 12px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background-color: #f39c12;
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      background-color: #e67e22;
+      transform: translateY(-2px);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+      .profile-container {
+        margin: 20px 15px;
+        padding: 25px 20px;
+      }
+      
+      .quiz-stats {
+        flex-direction: column;
+      }
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      background-color: transparent;
+      border: none;
+      color: #495057;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      padding: 5px 10px;
+      transition: color 0.3s ease;
+    }
+
+    .btn-back:hover {
+      color: #f39c12;
+      text-decoration: none;
+    }
+
+    .btn-back i {
+      margin-right: 5px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container d-flex align-items-center">
+      <!-- Back Button -->
+      <a href="javascript:history.back()" class="btn-back me-3">
+        <i class="fas fa-arrow-left"></i> Back
+      </a>
+      <!-- Logo -->
+      <a class="navbar-brand" href="/"><img src="logo.png" alt="Logo" height="50"></a>
+      <!-- Sign Out Button -->
+      <button id="sign-out-btn" class="btn btn-primary ms-auto">Sign Out</button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="buttons-container">
+    
+  <div class="container">
+    
+    <!-- Profile Container -->
+    <div id="profile-container" class="profile-container">
+      
+      <div class="profile-header">
+        
+        <img id="profile-pic" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" alt="Profile Picture" class="profile-pic">
+        <h2 id="profile-name">User Name</h2>
+        <p id="profile-email">user@example.com</p>
+      </div>
+
+      
+      <div class="quiz-stats">
+        <div class="stat-item">
+          <div class="stat-number" id="quizzes-taken">0</div>
+          <div class="stat-label">Quizzes Taken</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="correct-answers">0</div>
+          <div class="stat-label">Correct Answers</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="learning-streak">0</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+      </div>
+      
+      <div class="profile-details">
+        <h4>Account Details</h4>
+        <div class="detail-item">
+          <div class="detail-label">Account Created</div>
+          <div class="detail-value" id="account-created">Loading...</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Last Sign In</div>
+          <div class="detail-value" id="last-signin">Loading...</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Account Type</div>
+          <div class="detail-value" id="account-type">Basic</div>
+        </div>
+      </div>
+      
+      <button id="profile-sign-out-btn" class="btn btn-primary btn-auth">Sign Out</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDelPBnpY0xv-_ShgWreMZpld_SUWdRwJk",
+      authDomain: "lt-website-bf509.firebaseapp.com",
+      projectId: "lt-website-bf509",
+      storageBucket: "lt-website-bf509.firebasestorage.app",
+      messagingSenderId: "43884867628",
+      appId: "1:43884867628:web:617a17c06d37b014a86189",
+      measurementId: "G-XL54K0J9BX"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // DOM elements
+    const profileContainer = document.getElementById('profile-container');
+    const signOutBtn = document.getElementById('sign-out-btn');
+    const profileSignOutBtn = document.getElementById('profile-sign-out-btn');
+
+    // Check for redirect parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectUrl = urlParams.get('redirect') || 'index.html';
+
+    // Auth state listener
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        // User is not signed in, redirect to login with return URL
+        window.location.href = `login.html?redirect=profile.html`;
+      } else {
+        // User is signed in, show profile
+        updateProfile(user);
+      }
+    });
+
+    // Update profile information
+    function updateProfile(user) {
+      document.getElementById('profile-name').textContent = 
+        user.displayName || `${user.email.split('@')[0]}`;
+      document.getElementById('profile-email').textContent = user.email;
+      
+      // Set profile picture
+      const profilePic = document.getElementById('profile-pic');
+      if (user.photoURL) {
+        profilePic.src = user.photoURL;
+      } else {
+        // Generate initials-based avatar
+        const displayName = user.displayName || user.email.split('@')[0];
+        const initials = displayName
+          .split(' ')
+          .map((name) => name[0].toUpperCase())
+          .join('');
+        const avatarUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(initials)}&backgroundColor=f39c12&size=128&textColor=ffffff&fontWeight=700`;
+        profilePic.src = avatarUrl;
+      }
+      
+      // Format dates
+      const formatDate = (timestamp) => {
+        if (!timestamp) return 'Unknown';
+        const date = new Date(timestamp);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+      };
+      
+      document.getElementById('account-created').textContent = 
+        formatDate(user.metadata.creationTime);
+      document.getElementById('last-signin').textContent = 
+        formatDate(user.metadata.lastSignInTime);
+      
+      // Set account type based on provider
+      const providerData = user.providerData[0];
+      document.getElementById('account-type').textContent = 
+        providerData ? providerData.providerId.replace('.com', '') : 'Email';
+    }
+
+    // Sign out
+    function handleSignOut() {
+      auth.signOut()
+        .then(() => {
+          // Redirect will be handled by auth state listener
+        })
+        .catch((error) => {
+          console.error("Sign out error:", error);
+        });
+    }
+
+    // Event listeners for sign out buttons
+    signOutBtn.addEventListener('click', handleSignOut);
+    profileSignOutBtn.addEventListener('click', handleSignOut);
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+      // Auth state listener will handle the initial view
+    });
+  </script>
+</body>
+</html>
