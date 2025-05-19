@@ -651,6 +651,20 @@ background: linear-gradient(45deg,rgba(168, 78, 158, 1) 51%, rgba(224, 123, 213,
     
     updateCountdown();
     setInterval(updateCountdown, 1000);
+
+    // Remove iOS blue tap highlight
+document.documentElement.style.webkitTapHighlightColor = 'transparent';
+
+// Remove focus outline on tap for all elements
+document.addEventListener('mousedown', function(e) {
+  e.target.style.outline = 'none';
+});
+
+document.addEventListener('touchstart', function(e) {
+  if (e.target && e.target.style) {
+    e.target.style.outline = 'none';
+  }
+});
   </script>
 </body>
 </html>
